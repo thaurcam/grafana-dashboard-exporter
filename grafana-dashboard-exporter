@@ -1,0 +1,6 @@
+KEY=XXXXXXXXXXXX
+HOST="https://metrics.crisidev.org"
+
+mkdir -p dashboards && for dash in $(curl -k -H "Authorization: Bearer $KEY" $HOST/api/search\?query\=\& |tr ']' '\n' |cut -d "," -f 5 |grep slug |cut -d\" -f 4); do 
+  curl -k -H "Authorization: Bearer $KEY" $HOST/api/dashboards/db/$dash > dashboards/$dash.json 
+done
