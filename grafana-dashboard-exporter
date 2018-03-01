@@ -1,6 +1,13 @@
-KEY=XXXXXXXXXXXX
-HOST="https://metrics.crisidev.org"
+#!/usr/bin/env bash
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+KEY=$(<~/.grafanakey)
+HOST="https://mdmdev.cloudtrust.rocks"
 
-mkdir -p dashboards && for dash in $(curl -k -H "Authorization: Bearer $KEY" $HOST/api/search\?query\=\& |tr ']' '\n' |cut -d "," -f 5 |grep slug |cut -d\" -f 4); do 
-  curl -k -H "Authorization: Bearer $KEY" $HOST/api/dashboards/db/$dash > dashboards/$dash.json 
+
+if [ ! -d $SCRIPT_DIR/dashboards ] ; then
+    mkdir -p $SCRIPT_DIR/dashboards
+fi
+
+for dash in $(curl -k -H "Authorization: Bearer $KEY" $HOST/api/search\?query\=\& | jq -r '.[] | .uri'); do
+  curl -k -H "Authorization: Bearer $KEY" $HOST/api/dashboards/$dash | sed 's/"id":[0-9]\+,/"id":null,/' | sed 's/\(.*\)}/\1,"overwrite": true}/' > dashboards/$(echo ${dash} |cut -d\" -f 4 |cut -d\/ -f2).json
 done
