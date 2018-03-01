@@ -9,5 +9,5 @@ if [ ! -d $SCRIPT_DIR/dashboards ] ; then
 fi
 
 for dash in $(curl -k -H "Authorization: Bearer $KEY" $HOST/api/search\?query\=\& | jq -r '.[] | .uri'); do
-  curl -k -H "Authorization: Bearer $KEY" $HOST/api/dashboards/$dash | sed 's/"id":[0-9]\+,/"id":null,/' | sed 's/\(.*\)}/\1,"overwrite": true}/' > dashboards/$(echo ${dash} |cut -d\" -f 4 |cut -d\/ -f2).json
+  curl -k -H "Authorization: Bearer $KEY" $HOST/api/dashboards/$dash | sed 's/"id":[0-9]\+,/"id":null,/' | sed 's/\(.*\)}/\1,"overwrite": true}/' | jq . > dashboards/$(echo ${dash} |cut -d\" -f 4 |cut -d\/ -f2).json
 done
